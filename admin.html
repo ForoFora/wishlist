@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Отметить подарки — вишлист Миши</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="topbar">
+      <a class="brand" href="index.html">
+        <img class="brand-mark" src="favicon.svg" alt="">
+        Вишлист Миши
+      </a>
+      <nav class="top-links">
+        <a href="index.html">К подаркам</a>
+      </nav>
+    </header>
+
+    <main>
+      <p class="eyebrow">Для родителей</p>
+      <h1>Кто что дарит</h1>
+      <div class="note">
+        <p id="admin-status">Читаем список…</p>
+        <p>Гости занимают подарки сами. Эта страница нужна, только если бронь надо снять или поправить имя.</p>
+        <div class="modal-actions">
+          <button class="btn" type="button" id="save-claims">Сохранить</button>
+        </div>
+      </div>
+      <div class="admin-list" id="admin-list" style="margin-top: 18px"></div>
+    </main>
+  </div>
+  <script src="js/config.js"></script>
+  <script src="js/gifts.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Вишлист Миши — первый день рождения</title>
+  <meta name="description" content="Подарки на первый день рождения Миши: фото, цена и отметка, что уже выбрали.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560;9..144,650&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="topbar">
+      <a class="brand" href="#top">
+        <img class="brand-mark" src="favicon.svg" alt="">
+        Мише 1 год
+      </a>
+      <nav class="top-links">
+        <a href="#about">О Мише</a>
+        <a href="#gifts">Подарки</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero" id="about">
+        <div class="hero-copy">
+          <p class="eyebrow">Скоро первый день рождения</p>
+          <h1>Вишлист Миши</h1>
+          <p class="lead">
+            Мише скоро год. Здесь собраны подарки, которые правда пригодятся:
+            книжки, которые можно трогать, игрушки, которые гремят, и коврик,
+            по которому интересно ползать.
+          </p>
+          <p class="lead">
+            Можно забронировать сколько угодно подарков. Нажмите «Забронировать»
+            и оставьте имя — родители потом посмотрят список.
+          </p>
+          <div class="sync" id="sync"><i></i><span>Проверяем общий список…</span></div>
+        </div>
+        <img class="hero-bear" src="images/bear.svg" alt="">
+        <div class="frames" id="photos"></div>
+      </section>
+
+      <section class="section" id="gifts">
+        <div class="section-head">
+          <div>
+            <h2>Что можно подарить</h2>
+            <p class="progress" id="progress"></p>
+          </div>
+          <div class="filters">
+            <button class="chip" type="button" data-filter="all" aria-pressed="true">Все</button>
+            <button class="chip" type="button" data-filter="free" aria-pressed="false">Свободные</button>
+            <button class="chip" type="button" data-filter="taken" aria-pressed="false">Уже выбрали</button>
+          </div>
+        </div>
+        <div class="grid" id="grid"></div>
+      </section>
+    </main>
+
+    <footer>
+      <p>
+        Цена на карточках Wildberries — ориентир, на сайте магазина она может отличаться.
+        Если подарок уже забронировали, на карточке появляется имя, и это видно всем.
+        <a href="admin.html">Снять бронь</a>
+      </p>
+    </footer>
+  </div>
+
+  <dialog id="reserve">
+    <form class="modal" id="reserve-form">
+      <h3>Забронировать</h3>
+      <p id="modal-text"></p>
+      <label for="giver-name">Как вас записать</label>
+      <input id="giver-name" name="name" type="text" maxlength="40" required placeholder="Например, тётя Оля" autocomplete="name">
+      <p class="modal-error" id="modal-error"></p>
+      <div class="modal-actions">
+        <button class="btn" type="submit" id="reserve-submit">Забронировать</button>
+        <button class="btn ghost" type="button" id="close-reserve">Закрыть</button>
+      </div>
+    </form>
+  </dialog>
+  <div class="toast" id="toast" role="status"></div>
+
+  <script src="js/config.js"></script>
+  <script src="js/gifts.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.querySelector("#close-reserve").addEventListener("click", function () {
+      document.querySelector("#reserve").close();
+    });
+  </script>
+</body>
+</html>
