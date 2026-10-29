@@ -52,6 +52,14 @@
     return new Promise(function (resolve) { setTimeout(resolve, ms); });
   }
 
+  function request(url, options) {
+    const controller = new AbortController();
+    const timer = setTimeout(function () { controller.abort(); }, 8000);
+    return fetch(url, Object.assign({}, options || {}, { signal: controller.signal })).finally(function () {
+      clearTimeout(timer);
+    });
+  }
+
   function busyStatus(status) {
     return status === 429 || status === 502 || status === 503 || status === 504;
   }
@@ -74,9 +82,16 @@
   }
 
   async function readClaim(giftId) {
-    const response = await fetch(BASE + "GetValue/" + encodeURIComponent(storeKey()) + "/" + claimKey(giftId), {
-      cache: "no-store",
-    });
+    let response;
+    try {
+      response = await request(BASE + "GetValue/" + encodeURIComponent(storeKey()) + "/" + claimKey(giftId), {
+        cache: "no-store",
+      });
+    } catch (error) {
+      const retry = new Error("retry");
+      retry.retry = true;
+      throw retry;
+    }
     if (response.status === 500) return null;
     if (busyStatus(response.status)) {
       const error = new Error("retry");
@@ -142,10 +157,16 @@
     const waits = [0, 400, 900];
     for (let attempt = 0; attempt < waits.length; attempt += 1) {
       if (waits[attempt]) await sleep(waits[attempt]);
-      const response = await fetch(
-        BASE + "UpdateValue/" + encodeURIComponent(storeKey()) + "/" + claimKey(giftId) + "/" + value,
-        { method: "POST", body: "1" }
-      );
+      let response;
+      try {
+        response = await request(
+          BASE + "UpdateValue/" + encodeURIComponent(storeKey()) + "/" + claimKey(giftId) + "/" + value,
+          { method: "POST", body: "1" }
+        );
+      } catch (error) {
+        if (attempt < waits.length - 1) continue;
+        return false;
+      }
       if (busyStatus(response.status) && attempt < waits.length - 1) continue;
       if (!response.ok) return false;
       const text = (await response.text()).trim();

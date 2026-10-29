@@ -501,6 +501,11 @@ input[type="text"] {
   border-radius: 16px;
 }
 
+.admin-clear {
+  margin-top: 10px;
+  min-height: 44px;
+}
+
 .steps { padding-left: 18px; }
 .steps li { margin: 8px 0; }
 
