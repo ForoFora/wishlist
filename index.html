@@ -12,6 +12,26 @@
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+  <div class="loader" id="loader" role="status" aria-live="polite">
+    <div class="loader-stage" aria-hidden="true">
+      <svg class="toy is-on" viewBox="0 0 140 140">
+        <polygon points="70,28 112,50 70,72 28,50" fill="#f6e3a4"/>
+        <polygon points="28,50 70,72 70,112 28,90" fill="#e07a5f"/>
+        <polygon points="70,72 112,50 112,90 70,112" fill="#c45b42"/>
+      </svg>
+      <svg class="toy" viewBox="0 0 140 140">
+        <polygon points="70,22 122,112 18,112" fill="#3f6b58"/>
+        <polygon points="70,22 122,112 70,92" fill="#2c4d40"/>
+      </svg>
+      <svg class="toy" viewBox="0 0 140 140">
+        <ellipse cx="70" cy="96" rx="36" ry="12" fill="#e7c3a8"/>
+        <path d="M34 52h72v40c0 10-16 16-36 16s-36-6-36-16V52z" fill="#f2c4a2"/>
+        <ellipse cx="70" cy="52" rx="36" ry="13" fill="#f8decc"/>
+        <ellipse cx="70" cy="50" rx="16" ry="5" fill="#fff" opacity="0.7"/>
+      </svg>
+    </div>
+    <p class="loader-caption" id="loader-caption">собираем кубики</p>
+  </div>
   <div class="wrap">
     <header class="topbar">
       <a class="brand" href="#top">

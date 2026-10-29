@@ -263,9 +263,62 @@
     render();
   });
 
+  var loaderLines = [
+    "собираем кубики",
+    "рисуем рисунки",
+    "прячем подгузники",
+    "отворачиваем Мишу от экрана",
+    "складываем пирамидку",
+    "ищем второй носок",
+    "уговариваем кашу остыть",
+    "считаем пальчики",
+    "прячем пульт повыше",
+    "раскладываем погремушки"
+  ];
+  var loader = document.querySelector("#loader");
+  var loaderCaption = document.querySelector("#loader-caption");
+  var loaderToys = loader ? loader.querySelectorAll(".toy") : [];
+  var loaderStep = 0;
+  var loaderTimer = 0;
+
+  function tickLoader() {
+    if (!loader || loader.classList.contains("is-done")) return;
+    loaderStep += 1;
+    loaderToys.forEach(function (toy, index) {
+      toy.classList.toggle("is-on", index === loaderStep % loaderToys.length);
+    });
+    if (!loaderCaption) return;
+    var line = loaderLines[loaderStep % loaderLines.length];
+    loaderCaption.classList.add("is-out");
+    setTimeout(function () {
+      if (!loaderCaption || loader.classList.contains("is-done")) return;
+      loaderCaption.textContent = line;
+      loaderCaption.classList.remove("is-out");
+    }, 180);
+  }
+
+  function hideLoader() {
+    if (!loader) return;
+    clearInterval(loaderTimer);
+    grid.classList.add("is-ready");
+    loader.classList.add("is-done");
+    loader.setAttribute("aria-busy", "false");
+    setTimeout(function () {
+      if (loader && loader.parentNode) loader.parentNode.removeChild(loader);
+    }, 500);
+  }
+
+  if (loader) {
+    loader.setAttribute("aria-busy", "true");
+    loaderTimer = setInterval(tickLoader, 1500);
+  }
+
   renderPhotos();
-  render();
-  refresh();
+  var loaderStarted = Date.now();
+  refresh().then(function () {
+    var wait = Math.max(0, 3000 - (Date.now() - loaderStarted));
+    setTimeout(hideLoader, wait);
+  });
   setInterval(refresh, 20000);
   document.addEventListener("visibilitychange", function () {
     if (document.visibilityState === "visible") refresh();

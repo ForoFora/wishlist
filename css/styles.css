@@ -481,6 +481,67 @@ input[type="text"] {
 
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 18px;
+  padding: 24px;
+  background:
+    radial-gradient(420px 220px at 50% 42%, #f8ddd4 0%, transparent 70%),
+    var(--bg);
+  transition: opacity 0.45s ease;
+}
+
+.loader.is-done {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loader-stage {
+  position: relative;
+  width: 140px;
+  height: 140px;
+}
+
+.toy {
+  position: absolute;
+  inset: 0;
+  width: 140px;
+  height: 140px;
+  opacity: 0;
+  transform: translateY(12px) scale(0.94);
+  transition: opacity 0.45s ease, transform 0.45s ease;
+}
+
+.toy.is-on {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.loader-caption {
+  margin: 0;
+  min-height: 1.3em;
+  max-width: 18ch;
+  font-family: var(--serif);
+  font-size: clamp(26px, 5vw, 34px);
+  line-height: 1.15;
+  text-align: center;
+  transition: opacity 0.28s ease;
+}
+
+.loader-caption.is-out { opacity: 0; }
+
+.grid.is-ready { animation: list-in 0.45s ease; }
+
+@keyframes list-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
 .admin-list { display: grid; gap: 12px; padding-bottom: 28px; }
 
 .admin-row {
@@ -682,5 +743,6 @@ pre.note {
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .toast { transition: none; }
+  .toast, .loader, .toy, .loader-caption { transition: none; }
+  .grid.is-ready { animation: none; }
 }
