@@ -513,22 +513,19 @@ input[type="text"] {
   width: 140px;
   height: 140px;
   opacity: 0;
-  transform: translateY(12px) scale(0.94);
-  transition: opacity 0.45s ease, transform 0.45s ease;
+  transition: opacity 0.45s ease;
 }
 
-.toy.is-on {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-}
+.toy.is-on { opacity: 1; }
 
 .loader-caption {
+  width: min(280px, calc(100vw - 48px));
+  height: 2.5em;
   margin: 0;
-  min-height: 1.3em;
-  max-width: 18ch;
+  overflow: hidden;
   font-family: var(--serif);
   font-size: clamp(26px, 5vw, 34px);
-  line-height: 1.15;
+  line-height: 1.25;
   text-align: center;
   transition: opacity 0.28s ease;
 }
