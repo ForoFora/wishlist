@@ -64,21 +64,32 @@
     return status === 429 || status === 502 || status === 503 || status === 504;
   }
 
-  async function mapLimited(items, limit, fn) {
-    const results = new Array(items.length);
-    let cursor = 0;
-    async function worker() {
-      while (cursor < items.length) {
-        const index = cursor;
-        cursor += 1;
-        results[index] = await fn(items[index]);
+  function parseClaim(raw) {
+    let value = String(raw || "").trim();
+    if (!value || value === '""' || value === "null" || value === "0") return { ok: true, claim: null };
+    if (value.charAt(0) === "<") return { ok: false, claim: null };
+    if (value.charAt(0) === '"') {
+      try {
+        value = JSON.parse(value);
+      } catch (error) {
+        return { ok: false, claim: null };
       }
     }
-    const jobs = [];
-    const workers = Math.min(limit, items.length);
-    for (let i = 0; i < workers; i += 1) jobs.push(worker());
-    await Promise.all(jobs);
-    return results;
+    if (!value || value === "0") return { ok: true, claim: null };
+    try {
+      const claim = decode(value);
+      if (!claim || !String(claim.name || "").trim()) return { ok: true, claim: null };
+      return {
+        ok: true,
+        claim: {
+          name: String(claim.name).trim(),
+          at: claim.at ? String(claim.at) : "",
+          token: claim.token ? String(claim.token) : "",
+        },
+      };
+    } catch (error) {
+      return { ok: false, claim: null };
+    }
   }
 
   async function readClaim(giftId) {
@@ -88,67 +99,33 @@
         cache: "no-store",
       });
     } catch (error) {
-      const retry = new Error("retry");
-      retry.retry = true;
-      throw retry;
+      return { ok: false, claim: null };
     }
-    if (response.status === 500) return null;
-    if (busyStatus(response.status)) {
-      const error = new Error("retry");
-      error.retry = true;
-      throw error;
-    }
-    if (!response.ok) throw new Error("read");
-    let value = (await response.text()).trim();
-    if (!value || value === '""' || value === "null") return null;
-    if (value.charAt(0) === '"') {
-      try {
-        value = JSON.parse(value);
-      } catch (error) {
-        return null;
-      }
-    }
-    if (!value || value === "0") return null;
-    try {
-      const claim = decode(value);
-      if (!claim || !String(claim.name || "").trim()) return null;
-      return {
-        name: String(claim.name).trim(),
-        at: claim.at ? String(claim.at) : "",
-        token: claim.token ? String(claim.token) : "",
-      };
-    } catch (error) {
-      return null;
-    }
+    if (!response.ok || busyStatus(response.status)) return { ok: false, claim: null };
+    return parseClaim(await response.text());
   }
 
-  async function readClaimRetry(giftId) {
-    const waits = [0, 400, 900, 1600];
+  async function readClaimSure(giftId) {
+    const waits = [0, 600, 1200, 2000, 3000, 4000];
+    let last = { ok: false, claim: null };
     for (let attempt = 0; attempt < waits.length; attempt += 1) {
       if (waits[attempt]) await sleep(waits[attempt]);
-      try {
-        return await readClaim(giftId);
-      } catch (error) {
-        if (!error || !error.retry || attempt === waits.length - 1) throw error;
-      }
+      last = await readClaim(giftId);
+      if (last.ok) return last;
     }
-    return null;
+    return last;
   }
 
   async function fetchClaims() {
     if (!storeKey()) return { ok: false, reason: "empty", claims: {} };
-    try {
-      const claims = {};
-      const rows = await mapLimited(GIFTS, 2, async function (gift) {
-        return { id: gift.id, claim: await readClaimRetry(gift.id) };
-      });
-      rows.forEach(function (row) {
-        if (row && row.claim) claims[row.id] = row.claim;
-      });
-      return { ok: true, reason: "ok", claims: claims };
-    } catch (error) {
-      return { ok: false, reason: "network", claims: {} };
+    const claims = {};
+    for (let i = 0; i < GIFTS.length; i += 1) {
+      if (i) await sleep(200);
+      const read = await readClaimSure(GIFTS[i].id);
+      if (!read.ok) return { ok: false, reason: "network", claims: {} };
+      if (read.claim) claims[GIFTS[i].id] = read.claim;
     }
+    return { ok: true, reason: "ok", claims: claims };
   }
 
   async function saveClaim(giftId, claim) {

@@ -103,8 +103,16 @@
     }
   });
 
-  Store.fetchClaims().then(function (result) {
+  (async function loadAdmin() {
+    var result = { ok: false, reason: "network" };
+    while (!result.ok && result.reason !== "empty") {
+      result = await Store.fetchClaims();
+      if (!result.ok && result.reason !== "empty") {
+        status.textContent = "Список ещё читается…";
+        await new Promise(function (resolve) { setTimeout(resolve, 1000); });
+      }
+    }
     if (result.ok) claims = result.claims;
     render(result);
-  });
+  })();
 })();

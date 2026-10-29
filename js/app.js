@@ -158,14 +158,34 @@
     if (changed) Store.writeTokens(tokens);
   }
 
-  async function refresh() {
-    const result = await Store.fetchClaims();
-    if (result.ok) {
-      claims = result.claims;
-      forgetStaleTokens();
+  var claimLoad = null;
+
+  function refresh() {
+    if (claimLoad) return claimLoad;
+    claimLoad = Store.fetchClaims().then(function (result) {
+      if (result.ok) {
+        claims = result.claims;
+        forgetStaleTokens();
+        render();
+      }
+      renderSync(result);
+      return result;
+    }).finally(function () {
+      claimLoad = null;
+    });
+    return claimLoad;
+  }
+
+  function wait(ms) {
+    return new Promise(function (resolve) { setTimeout(resolve, ms); });
+  }
+
+  async function waitForClaims() {
+    var result = await refresh();
+    while (!result.ok && result.reason !== "empty") {
+      await wait(1000);
+      result = await refresh();
     }
-    renderSync(result);
-    render();
     return result;
   }
 
@@ -322,12 +342,17 @@
 
   renderPhotos();
   var loaderStarted = Date.now();
-  refresh().then(function () {
-    var wait = Math.max(0, 10000 - (Date.now() - loaderStarted));
-    setTimeout(hideLoader, wait);
+  waitForClaims().then(function () {
+    var remain = Math.max(0, 10000 - (Date.now() - loaderStarted));
+    setTimeout(function () {
+      claimsReady = true;
+      hideLoader();
+      setInterval(refresh, 20000);
+    }, remain);
   });
-  setInterval(refresh, 20000);
+  var claimsReady = false;
+
   document.addEventListener("visibilitychange", function () {
-    if (document.visibilityState === "visible") refresh();
+    if (document.visibilityState === "visible" && claimsReady) refresh();
   });
 })();
